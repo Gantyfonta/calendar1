@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top-Down Box Picker</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #222;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            font-family: sans-serif;
+        }
+        #game-wrap {
+            position: relative;
+            width: 800px;
+            height: 600px;
+        }
+        canvas {
+            display: block;
+            background-color: #7494B0;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            cursor: crosshair;
+        }
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: none;
+        }
+        #interactPrompt {
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.75);
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            display: none;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        #dialogueBox {
+            position: absolute;
+            left: 40px;
+            right: 40px;
+            bottom: 20px;
+            background: rgba(20,20,20,0.92);
+            border: 2px solid #f1c40f;
+            border-radius: 8px;
+            padding: 14px 18px;
+            display: none;
+            pointer-events: none;
+        }
+        #dialogueBox .name {
+            color: #f1c40f;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        #dialogueBox .hint {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-wrap">
+        <div id="ui">
+            <h2>Box Picker Mini-Game</h2>
+            <p><strong>WASD</strong> to move | <strong>Mouse</strong> to aim | <strong>Space</strong> to pick up / drop | <strong>E</strong> to talk</p>
+            <p>Walk into a glowing <strong>orange door</strong> to head to a different scene.</p>
+        </div>
+
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <div id="interactPrompt"></div>
+        <div id="dialogueBox">
+            <div class="name" id="dialogueName"></div>
+            <div id="dialogueText"></div>
+            <div class="hint">Press E to continue</div>
+        </div>
+    </div>
+
+    <script src="map.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

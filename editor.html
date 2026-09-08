@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factory Map Editor</title>
+    <style>
+        body { margin: 0; background-color: #2c3e50; color: white; font-family: sans-serif; display: flex; height: 100vh; overflow: hidden; }
+        #sidebar { width: 320px; flex-shrink: 0; background-color: #1a252f; padding: 18px; display: flex; flex-direction: column; gap: 13px; box-shadow: 2px 0 10px rgba(0,0,0,0.5); z-index: 10; overflow-y: auto; }
+        #canvas-container { flex-grow: 1; overflow: auto; background-color: #101820; display: flex; }
+        canvas { background-color: #7494B0; cursor: crosshair; box-shadow: 0 0 20px rgba(0,0,0,0.5); margin: auto; }
+
+        h2 { margin: 0; }
+        h3 { margin: 0 0 4px; font-size: 14px; color: #bdc3c7; text-transform: uppercase; letter-spacing: .04em; }
+        p.hint { font-size: 12px; color: #aaa; margin: 0; }
+        hr { width: 100%; border-color: #34495e; border-style: solid; }
+
+        .row { display: flex; gap: 8px; align-items: center; }
+        .row label { font-size: 12px; color: #bdc3c7; width: 34px; flex-shrink: 0; }
+        .row input[type=number] { width: 100%; }
+        select, input[type=number], input[type=text] { background: #2c3e50; color: white; border: 1px solid #34495e; border-radius: 4px; padding: 6px; font-size: 13px; }
+        input[type=color] { width: 40px; height: 30px; border: none; background: none; padding: 0; }
+
+        .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .tool-btn { background-color: #34495e; color: white; border: 2px solid transparent; padding: 10px; cursor: pointer; text-align: left; font-size: 14px; border-radius: 5px; }
+        .tool-btn.active { border-color: #f1c40f; background-color: #2c3e50; }
+
+        button.action { background-color: #27ae60; color: white; padding: 9px; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; font-size: 13px; }
+        button.action:hover { background-color: #2ecc71; }
+        button.danger { background-color: #c0392b; }
+        button.danger:hover { background-color: #e74c3c; }
+        button.neutral { background-color: #34495e; }
+        button.neutral:hover { background-color: #3d5871; }
+
+        textarea { width: 100%; height: 220px; background: #000; color: #0f0; font-family: monospace; font-size: 11px; padding: 10px; box-sizing: border-box; resize: none; border: none; border-radius: 5px; }
+
+        #doorPanel { display: none; background: #23303d; border: 1px solid #e67e22; border-radius: 6px; padding: 10px; flex-direction: column; gap: 8px; }
+        #doorPanel.open { display: flex; }
+        #doorPanel .title { font-size: 13px; color: #e67e22; font-weight: bold; }
+
+        #pickBanner { display: none; position: absolute; top: 14px; left: 50%; transform: translateX(-50%); background: #e67e22; color: #1a1200; font-weight: bold; padding: 8px 16px; border-radius: 4px; z-index: 20; font-size: 13px; }
+        #pickBanner.show { display: block; }
+
+        #doorList { display: flex; flex-direction: column; gap: 6px; max-height: 120px; overflow-y: auto; }
+        .door-item { display: flex; justify-content: space-between; align-items: center; background: #23303d; padding: 6px 8px; border-radius: 4px; font-size: 12px; }
+        .door-item button { background: #c0392b; color: white; border: none; border-radius: 3px; width: 20px; height: 20px; cursor: pointer; line-height: 1; flex-shrink: 0; }
+
+        .itemtype-row { display: flex; gap: 6px; align-items: center; background: #23303d; padding: 6px; border-radius: 4px; }
+        .itemtype-row input[type=text] { flex: 1; min-width: 0; }
+        .itemtype-row select { width: 78px; flex-shrink: 0; }
+        .itemtype-row button { background: #c0392b; color: white; border: none; border-radius: 3px; width: 22px; height: 26px; cursor: pointer; flex-shrink: 0; }
+
+        #npcPanel { display: none; background: #23303d; border: 1px solid #9b59b6; border-radius: 6px; padding: 10px; flex-direction: column; gap: 8px; }
+        #npcPanel.open { display: flex; }
+        #npcPanel .title { font-size: 13px; color: #9b59b6; font-weight: bold; }
+        #npcPanel textarea { height: 80px; }
+
+        #npcList { max-height: 120px; overflow-y: auto; }
+        .npc-item { display: flex; justify-content: space-between; align-items: center; background: #23303d; padding: 6px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+        .npc-item:hover { background: #2c3b4c; }
+        .npc-item button { background: #c0392b; color: white; border: none; border-radius: 3px; width: 20px; height: 20px; cursor: pointer; line-height: 1; flex-shrink: 0; }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <h2>Map Editor</h2>
+        <p class="hint">Select a tool, then click and drag on the canvas to draw.</p>
+
+        <hr>
+        <h3>Scene</h3>
+        <div class="row">
+            <select id="sceneSelect" style="flex:1;"></select>
+            <button class="action neutral" id="newSceneBtn" title="New Scene">＋</button>
+            <button class="action danger" id="deleteSceneBtn" title="Delete Scene">🗑</button>
+        </div>
+        <div class="row">
+            <label>W</label><input type="number" id="sceneWidth" min="200" step="20">
+            <label>H</label><input type="number" id="sceneHeight" min="200" step="20">
+        </div>
+        <div class="row">
+            <label>BG</label><input type="color" id="sceneBg">
+            <button class="action neutral" id="applySceneBtn" style="flex:1;">Apply Size / Color</button>
+        </div>
+
+        <hr>
+        <h3>Game Start</h3>
+        <div class="row">
+            <label>At</label><select id="startSceneSelect" style="flex:1;"></select>
+        </div>
+        <div class="row">
+            <label>X</label><input type="number" id="startX">
+            <label>Y</label><input type="number" id="startY">
+        </div>
+
+        <hr>
+        <h3>Tools</h3>
+        <div class="tool-grid">
+            <button class="tool-btn active" data-tool="wall">🧱 Wall</button>
+            <button class="tool-btn" data-tool="decor">🎨 Decor (no collision)</button>
+            <button class="tool-btn" data-tool="door">🚪 Door</button>
+            <button class="tool-btn" data-tool="dock">📦 Dock</button>
+            <button class="tool-btn" data-tool="machine">⚙️ Machine</button>
+            <button class="tool-btn" data-tool="counter">🛎️ Counter</button>
+            <button class="tool-btn" data-tool="npc">🧑 NPC</button>
+        </div>
+        <div class="row">
+            <label style="width:auto;">Color</label>
+            <input type="color" id="wallColor" value="#555555">
+            <p class="hint" style="margin:0;">used for the next Wall / Decor you draw</p>
+        </div>
+
+        <div id="doorPanel">
+            <div class="title">New Door</div>
+            <div class="row"><label style="width:auto;">Leads to</label>
+                <select id="doorTarget" style="flex:1;"></select>
+            </div>
+            <button class="action" id="pickSpawnBtn">📍 Pick Spawn Point in Target Scene</button>
+            <button class="action danger" id="cancelDoorBtn">Cancel</button>
+        </div>
+
+        <h3 style="margin-top:6px;">Doors in this scene</h3>
+        <div id="doorList"></div>
+
+        <hr>
+        <h3>Item Types</h3>
+        <p class="hint">What comes out of the Dock, and what the Machine/Counter use.</p>
+        <div id="itemTypeList" style="display:flex;flex-direction:column;gap:6px;"></div>
+        <div class="row">
+            <input type="text" id="newItemName" placeholder="New item name" style="flex:1;">
+        </div>
+        <div class="row">
+            <input type="color" id="newItemColor" value="#3498db">
+            <select id="newItemShape" style="flex:1;">
+                <option value="square">Square</option>
+                <option value="circle">Circle</option>
+                <option value="triangle">Triangle</option>
+            </select>
+        </div>
+        <button class="action neutral" id="addItemTypeBtn">＋ Add Item Type</button>
+
+        <h3 style="margin-top:6px;">Zone Item Settings</h3>
+        <div id="zoneItemSettings" style="display:flex;flex-direction:column;gap:8px;"></div>
+
+        <hr>
+        <h3>NPCs in this scene</h3>
+        <p class="hint">Select the NPC tool, then click empty ground to place one, or click an existing NPC to edit it.</p>
+        <div id="npcList" style="display:flex;flex-direction:column;gap:6px;"></div>
+
+        <div id="npcPanel">
+            <div class="title">NPC</div>
+            <div class="row"><label style="width:auto;">Name</label>
+                <input type="text" id="npcName" style="flex:1;">
+            </div>
+            <div class="row"><label style="width:auto;">Color</label>
+                <input type="color" id="npcColor">
+            </div>
+            <div class="row">
+                <label style="width:auto;">X</label><input type="number" id="npcX">
+                <label style="width:auto;">Y</label><input type="number" id="npcY">
+            </div>
+            <p class="hint" style="margin:2px 0 0;">Dialogue lines (one per line, shown in order):</p>
+            <textarea id="npcLines" style="height:80px;"></textarea>
+            <button class="action" id="npcSaveBtn">💾 Save NPC</button>
+            <button class="action danger" id="npcDeleteBtn">🗑 Delete NPC</button>
+            <button class="action neutral" id="npcCancelBtn">Cancel</button>
+        </div>
+
+        <hr>
+        <button class="action neutral" id="undoBtn">↩️ Undo Last Wall/Decor</button>
+        <button class="action danger" id="clearBtn">🗑️ Clear This Scene</button>
+
+        <hr>
+        <h3>Import Level</h3>
+        <p class="hint">Paste your map.js contents, or choose a file, then load it.</p>
+        <input type="file" id="importFile" accept=".js,.json,text/javascript,text/plain">
+        <textarea id="importText" style="height:90px;" placeholder="// paste map.js contents here"></textarea>
+        <button class="action neutral" id="importBtn">⬆️ Load Imported Level</button>
+
+        <hr>
+        <h3>Generated Code</h3>
+        <p class="hint" style="margin-top:-8px;">Copy this into your map.js file!</p>
+        <textarea id="outputCode" readonly></textarea>
+        <button class="action neutral" id="copyBtn">📋 Copy to Clipboard</button>
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="editorCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <div id="pickBanner">Click in the canvas to place this door's spawn point</div>
+
+    <script src="editor.js"></script>
+</body>
+</html>
