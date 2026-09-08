@@ -13,11 +13,11 @@ const DEFAULT_MAP = {
     scenes: {
         factory: {
             width: 800, height: 600, background: "#7494B0",
-            zones: {
-                counter: { x: 340, y: 20, width: 120, height: 80, solid: true, acceptItem: "cheese" },
-                machine: { x: 600, y: 240, width: 120, height: 120, solid: true, inputItem: "box", outputItem: "cheese" },
-                dock: { x: 30, y: 420, width: 150, height: 150, solid: false, spawnItem: "box" }
-            },
+            zones: [
+                { type: "counter", x: 340, y: 20, width: 120, height: 80, solid: true, acceptItem: "cheese" },
+                { type: "machine", x: 600, y: 240, width: 120, height: 120, solid: true, inputItem: "box", outputItem: "cheese" },
+                { type: "dock", x: 30, y: 420, width: 150, height: 150, solid: false, spawnItem: "box", maxStock: 5, spawnIntervalMs: 4000 }
+            ],
             walls: [
                 { x: 54.453125, y: 312, width: 357, height: 68, color: "#555555", solid: true },
                 { x: 308.453125, y: 384, width: 107, height: 171, color: "#555555", solid: true }
@@ -26,13 +26,21 @@ const DEFAULT_MAP = {
                 { x: 780, y: 260, width: 20, height: 80, target: "outside", spawnX: 100, spawnY: 600 }
             ],
             npcs: [
-                { x: 500, y: 500, radius: 20, color: "#9b59b6", name: "Supervisor",
-                  lines: ["Keep those boxes moving!", "The machine turns boxes into cheese - simple as that."] }
+                {
+                    x: 500, y: 500, radius: 20, color: "#9b59b6", name: "Supervisor",
+                    lines: ["Keep those boxes moving!", "The machine turns boxes into cheese - simple as that."],
+                    quest: {
+                        enabled: true, itemNeeded: "cheese", amountNeeded: 1, amountDelivered: 0,
+                        requestLines: ["Hey - bring me a wheel of cheese from the machine, would you?"],
+                        turnInLines: ["That's the stuff! Thank you."],
+                        completeLines: ["Good work today. That cheese really hit the spot."]
+                    }
+                }
             ]
         },
         outside: {
             width: 1600, height: 1200, background: "#4a7c3f",
-            zones: {},
+            zones: [],
             walls: [
                 { x: 500, y: 300, width: 60, height: 60, color: "#555555", solid: true },
                 { x: 900, y: 700, width: 80, height: 80, color: "#555555", solid: true },
@@ -44,8 +52,11 @@ const DEFAULT_MAP = {
                 { x: 20, y: 560, width: 20, height: 80, target: "factory", spawnX: 750, spawnY: 300 }
             ],
             npcs: [
-                { x: 300, y: 500, radius: 20, color: "#16a085", name: "Wanderer",
-                  lines: ["Nice weather today.", "Watch out for the machine noise coming from that building."] }
+                {
+                    x: 300, y: 500, radius: 20, color: "#16a085", name: "Wanderer",
+                    lines: ["Nice weather today.", "Watch out for the machine noise coming from that building."],
+                    quest: null
+                }
             ]
         }
     }
@@ -98,6 +109,12 @@ function enableControls(enabled) {
     document.getElementById('newSceneBtn').disabled = !enabled;
     document.getElementById('deleteSceneBtn').disabled = !enabled;
     document.querySelectorAll('.tool-btn').forEach(b => b.disabled = !enabled);
+}
+
+function refreshSidePanels() {
+    renderDoorList();
+    renderZoneList();
+    renderNpcList();
 }
 
 function renderDoorList() {
@@ -153,7 +170,8 @@ function renderItemTypeList() {
         `;
         row.querySelector('[data-field="name"]').addEventListener('input', (e) => {
             itemTypes[id].name = e.target.value;
-            renderZoneItemSettings();
+            renderZoneList();
+            renderNpcList();
             updateOutput();
         });
         row.querySelector('[data-field="color"]').addEventListener('input', (e) => {
@@ -167,7 +185,7 @@ function renderItemTypeList() {
         row.querySelector('button').addEventListener('click', () => {
             delete itemTypes[id];
             renderItemTypeList();
-            renderZoneItemSettings();
+            renderZoneList();
             updateOutput();
         });
         container.appendChild(row);
@@ -188,55 +206,55 @@ document.getElementById('addItemTypeBtn').addEventListener('click', () => {
     };
     nameInput.value = '';
     renderItemTypeList();
-    renderZoneItemSettings();
+    renderZoneList();
     updateOutput();
 });
 
-// --- Zone item settings (what the Dock spawns, what the Machine converts, what the Counter wants) ---
-function renderZoneItemSettings() {
+// --- Zones (dock / machine / counter) - a LIST, so a scene can have several ---
+function renderZoneList() {
     const s = scene();
-    const container = document.getElementById('zoneItemSettings');
-    let html = '';
+    const container = document.getElementById('zoneList');
+    if (!s.zones.length) {
+        container.innerHTML = '<p class="hint">No zones yet - draw a Dock, Machine, or Counter.</p>';
+        return;
+    }
+    container.innerHTML = '';
+    s.zones.forEach((z, i) => {
+        const row = document.createElement('div');
+        row.className = 'zone-item';
 
-    if (s.zones.dock) {
-        html += `<div class="row"><label style="width:auto;">Dock spawns</label>
-            <select id="dockSpawnItem" style="flex:1;">${itemOptionsHtml(s.zones.dock.spawnItem || 'box')}</select></div>`;
-    }
-    if (s.zones.machine) {
-        html += `<div class="row"><label style="width:auto;">Machine in</label>
-            <select id="machineInputItem" style="flex:1;">${itemOptionsHtml(s.zones.machine.inputItem || 'box')}</select></div>`;
-        html += `<div class="row"><label style="width:auto;">Machine out</label>
-            <select id="machineOutputItem" style="flex:1;">${itemOptionsHtml(s.zones.machine.outputItem || 'cheese')}</select></div>`;
-    }
-    if (s.zones.counter) {
-        html += `<div class="row"><label style="width:auto;">Counter wants</label>
-            <select id="counterAcceptItem" style="flex:1;">${itemOptionsHtml(s.zones.counter.acceptItem || 'cheese')}</select></div>`;
-    }
-    if (!html) html = '<p class="hint">Place a Dock, Machine, or Counter zone in this scene to configure what items they use.</p>';
-    container.innerHTML = html;
+        let fieldsHtml = '';
+        if (z.type === 'dock') {
+            fieldsHtml = `<div class="row"><label style="width:auto;">Spawns</label>
+                <select data-field="spawnItem" style="flex:1;">${itemOptionsHtml(z.spawnItem || 'box')}</select></div>`;
+        } else if (z.type === 'machine') {
+            fieldsHtml = `<div class="row"><label style="width:auto;">In</label>
+                    <select data-field="inputItem" style="flex:1;">${itemOptionsHtml(z.inputItem || 'box')}</select></div>
+                <div class="row"><label style="width:auto;">Out</label>
+                    <select data-field="outputItem" style="flex:1;">${itemOptionsHtml(z.outputItem || 'cheese')}</select></div>`;
+        } else if (z.type === 'counter') {
+            fieldsHtml = `<div class="row"><label style="width:auto;">Wants</label>
+                <select data-field="acceptItem" style="flex:1;">${itemOptionsHtml(z.acceptItem || 'cheese')}</select></div>`;
+        }
 
-    if (s.zones.dock) {
-        document.getElementById('dockSpawnItem').addEventListener('change', (e) => {
-            s.zones.dock.spawnItem = e.target.value;
+        row.innerHTML = `
+            <div class="zone-head"><strong>${z.type.toUpperCase()}</strong> (${Math.round(z.x)}, ${Math.round(z.y)})<button title="Delete">&times;</button></div>
+            ${fieldsHtml}
+        `;
+        row.querySelectorAll('select[data-field]').forEach(sel => {
+            sel.addEventListener('change', (e) => {
+                z[e.target.getAttribute('data-field')] = e.target.value;
+                updateOutput();
+            });
+        });
+        row.querySelector('.zone-head button').addEventListener('click', () => {
+            s.zones.splice(i, 1);
+            renderZoneList();
+            drawAll();
             updateOutput();
         });
-    }
-    if (s.zones.machine) {
-        document.getElementById('machineInputItem').addEventListener('change', (e) => {
-            s.zones.machine.inputItem = e.target.value;
-            updateOutput();
-        });
-        document.getElementById('machineOutputItem').addEventListener('change', (e) => {
-            s.zones.machine.outputItem = e.target.value;
-            updateOutput();
-        });
-    }
-    if (s.zones.counter) {
-        document.getElementById('counterAcceptItem').addEventListener('change', (e) => {
-            s.zones.counter.acceptItem = e.target.value;
-            updateOutput();
-        });
-    }
+        container.appendChild(row);
+    });
 }
 
 // --- NPCs -----------------------------------------------------------------
@@ -257,9 +275,10 @@ function renderNpcList() {
     }
     container.innerHTML = '';
     npcs.forEach((n, i) => {
+        const questTag = (n.quest && n.quest.enabled) ? ' \u2b50 quest' : '';
         const row = document.createElement('div');
         row.className = 'npc-item';
-        row.innerHTML = `<span>${n.name} (${n.lines.length} line${n.lines.length === 1 ? '' : 's'})</span><button>&times;</button>`;
+        row.innerHTML = `<span>${n.name}${questTag}</span><button>&times;</button>`;
         row.addEventListener('click', (e) => {
             if (e.target.tagName === 'BUTTON') return;
             openNpcEditor(i);
@@ -275,10 +294,23 @@ function renderNpcList() {
     });
 }
 
+function refreshNpcQuestItemSelect(selected) {
+    document.getElementById('npcQuestItem').innerHTML = itemOptionsHtml(selected);
+}
+
+document.getElementById('npcQuestEnabled').addEventListener('change', (e) => {
+    const fields = document.getElementById('npcQuestFields');
+    fields.classList.toggle('show', e.target.checked);
+});
+
 function openNpcEditor(index, x, y) {
     editingNpcIndex = index;
     const panel = document.getElementById('npcPanel');
     panel.classList.add('open');
+
+    const questFields = document.getElementById('npcQuestFields');
+    const questEnabled = document.getElementById('npcQuestEnabled');
+
     if (index !== null && index !== undefined) {
         const n = scene().npcs[index];
         document.getElementById('npcName').value = n.name;
@@ -287,6 +319,15 @@ function openNpcEditor(index, x, y) {
         document.getElementById('npcX').value = Math.round(n.x);
         document.getElementById('npcY').value = Math.round(n.y);
         document.getElementById('npcDeleteBtn').style.display = 'inline-block';
+
+        const q = n.quest;
+        questEnabled.checked = !!(q && q.enabled);
+        refreshNpcQuestItemSelect(q ? q.itemNeeded : 'box');
+        document.getElementById('npcQuestAmount').value = (q && q.amountNeeded) || 1;
+        document.getElementById('npcQuestRequestLines').value = (q && q.requestLines || []).join('\n');
+        document.getElementById('npcQuestTurnInLines').value = (q && q.turnInLines || []).join('\n');
+        document.getElementById('npcQuestCompleteLines').value = (q && q.completeLines || []).join('\n');
+        questFields.classList.toggle('show', !!(q && q.enabled));
     } else {
         document.getElementById('npcName').value = 'Villager';
         document.getElementById('npcColor').value = '#9b59b6';
@@ -294,6 +335,14 @@ function openNpcEditor(index, x, y) {
         document.getElementById('npcX').value = Math.round(x);
         document.getElementById('npcY').value = Math.round(y);
         document.getElementById('npcDeleteBtn').style.display = 'none';
+
+        questEnabled.checked = false;
+        refreshNpcQuestItemSelect('box');
+        document.getElementById('npcQuestAmount').value = 1;
+        document.getElementById('npcQuestRequestLines').value = '';
+        document.getElementById('npcQuestTurnInLines').value = '';
+        document.getElementById('npcQuestCompleteLines').value = '';
+        questFields.classList.remove('show');
     }
 }
 
@@ -309,10 +358,29 @@ document.getElementById('npcSaveBtn').addEventListener('click', () => {
     const x = parseFloat(document.getElementById('npcX').value) || 0;
     const y = parseFloat(document.getElementById('npcY').value) || 0;
     if (!lines.length) lines.push('...');
-    const npc = { x, y, radius: 20, color, name, lines };
 
     const s = scene();
     s.npcs = s.npcs || [];
+    const existing = (editingNpcIndex !== null) ? s.npcs[editingNpcIndex] : null;
+
+    let quest = null;
+    if (document.getElementById('npcQuestEnabled').checked) {
+        const itemNeeded = document.getElementById('npcQuestItem').value;
+        const amountNeeded = Math.max(1, parseInt(document.getElementById('npcQuestAmount').value, 10) || 1);
+        // Keep progress if this is the same quest item as before; otherwise start fresh
+        const keepProgress = existing && existing.quest && existing.quest.itemNeeded === itemNeeded;
+        quest = {
+            enabled: true,
+            itemNeeded,
+            amountNeeded,
+            amountDelivered: keepProgress ? existing.quest.amountDelivered : 0,
+            requestLines: document.getElementById('npcQuestRequestLines').value.split('\n').map(l => l.trim()).filter(l => l.length),
+            turnInLines: document.getElementById('npcQuestTurnInLines').value.split('\n').map(l => l.trim()).filter(l => l.length),
+            completeLines: document.getElementById('npcQuestCompleteLines').value.split('\n').map(l => l.trim()).filter(l => l.length)
+        };
+    }
+
+    const npc = { x, y, radius: 20, color, name, lines, quest };
     if (editingNpcIndex !== null) s.npcs[editingNpcIndex] = npc;
     else s.npcs.push(npc);
 
@@ -357,13 +425,11 @@ document.getElementById('clearBtn').addEventListener('click', () => {
     const s = scene();
     s.walls = [];
     s.doors = [];
-    s.zones = {};
+    s.zones = [];
     s.npcs = [];
     updateOutput();
     drawAll();
-    renderDoorList();
-    renderZoneItemSettings();
-    renderNpcList();
+    refreshSidePanels();
 });
 
 // --- Scene management -------------------------------------------------------
@@ -371,9 +437,7 @@ document.getElementById('sceneSelect').addEventListener('change', (e) => {
     currentSceneName = e.target.value;
     resizeCanvasToScene();
     drawAll();
-    renderDoorList();
-    renderZoneItemSettings();
-    renderNpcList();
+    refreshSidePanels();
 });
 
 document.getElementById('newSceneBtn').addEventListener('click', () => {
@@ -383,14 +447,12 @@ document.getElementById('newSceneBtn').addEventListener('click', () => {
     if (!name || scenes[name]) { alert('Enter a unique, non-empty scene name.'); return; }
     const w = parseInt(prompt('Scene width (in pixels):', '800'), 10) || 800;
     const h = parseInt(prompt('Scene height (in pixels):', '600'), 10) || 600;
-    scenes[name] = { width: w, height: h, background: '#7494B0', zones: {}, walls: [], doors: [], npcs: [] };
+    scenes[name] = { width: w, height: h, background: '#7494B0', zones: [], walls: [], doors: [], npcs: [] };
     currentSceneName = name;
     populateSceneSelect();
     resizeCanvasToScene();
     drawAll();
-    renderDoorList();
-    renderZoneItemSettings();
-    renderNpcList();
+    refreshSidePanels();
     updateOutput();
 });
 
@@ -413,9 +475,7 @@ document.getElementById('deleteSceneBtn').addEventListener('click', () => {
     populateSceneSelect();
     resizeCanvasToScene();
     drawAll();
-    renderDoorList();
-    renderZoneItemSettings();
-    renderNpcList();
+    refreshSidePanels();
     updateOutput();
 });
 
@@ -454,9 +514,7 @@ document.getElementById('pickSpawnBtn').addEventListener('click', () => {
     populateSceneSelect();
     resizeCanvasToScene();
     drawAll();
-    renderDoorList();
-    renderZoneItemSettings();
-    renderNpcList();
+    refreshSidePanels();
     document.getElementById('pickBanner').classList.add('show');
 });
 
@@ -477,9 +535,7 @@ function finalizeDoorSpawn(x, y) {
     resizeCanvasToScene();
     enableControls(true);
     drawAll();
-    renderDoorList();
-    renderZoneItemSettings();
-    renderNpcList();
+    refreshSidePanels();
     updateOutput();
 }
 
@@ -539,19 +595,14 @@ canvas.addEventListener('mouseup', () => {
         document.getElementById('doorPanel').classList.add('open');
         drawAll();
         return; // wait for the target scene / spawn point before saving
-    } else {
-        const s = scene();
-        const existing = s.zones[currentTool];
+    } else if (currentTool === 'dock' || currentTool === 'machine' || currentTool === 'counter') {
         const solid = currentTool !== 'dock';
-        const zoneObj = { x, y, width, height, solid };
-        if (currentTool === 'dock') zoneObj.spawnItem = (existing && existing.spawnItem) || 'box';
-        if (currentTool === 'machine') {
-            zoneObj.inputItem = (existing && existing.inputItem) || 'box';
-            zoneObj.outputItem = (existing && existing.outputItem) || 'cheese';
-        }
-        if (currentTool === 'counter') zoneObj.acceptItem = (existing && existing.acceptItem) || 'cheese';
-        s.zones[currentTool] = zoneObj;
-        renderZoneItemSettings();
+        const zoneObj = { type: currentTool, x, y, width, height, solid };
+        if (currentTool === 'dock') { zoneObj.spawnItem = 'box'; zoneObj.maxStock = 5; zoneObj.spawnIntervalMs = 4000; }
+        if (currentTool === 'machine') { zoneObj.inputItem = 'box'; zoneObj.outputItem = 'cheese'; }
+        if (currentTool === 'counter') { zoneObj.acceptItem = 'cheese'; }
+        scene().zones.push(zoneObj);
+        renderZoneList();
     }
 
     updateOutput();
@@ -579,10 +630,10 @@ function drawRect(x, y, w, h, fillStyle, strokeStyle, label) {
     }
 }
 
-function zoneStyleFor(name) {
-    if (name === 'counter') return { fill: '#95a5a6', stroke: '#7f8c8d' };
-    if (name === 'machine') return { fill: '#34495e', stroke: '#2c3e50' };
-    if (name === 'dock') return { fill: 'rgba(0,0,0,0.1)', stroke: '#bdc3c7' };
+function zoneStyleFor(type) {
+    if (type === 'counter') return { fill: '#95a5a6', stroke: '#7f8c8d' };
+    if (type === 'machine') return { fill: '#34495e', stroke: '#2c3e50' };
+    if (type === 'dock') return { fill: 'rgba(0,0,0,0.1)', stroke: '#bdc3c7' };
     return { fill: 'rgba(241,196,15,0.15)', stroke: '#f1c40f' };
 }
 
@@ -598,10 +649,9 @@ function drawAll() {
         ctx.setLineDash([]);
     }
 
-    for (const name in s.zones) {
-        const z = s.zones[name];
-        const style = zoneStyleFor(name);
-        drawRect(z.x, z.y, z.width, z.height, style.fill, style.stroke, name.toUpperCase());
+    for (const z of s.zones) {
+        const style = zoneStyleFor(z.type);
+        drawRect(z.x, z.y, z.width, z.height, style.fill, style.stroke, z.type.toUpperCase());
     }
 
     for (const d of s.doors) {
@@ -624,7 +674,12 @@ function drawAll() {
         ctx.fillStyle = '#fff';
         ctx.font = '12px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(n.name, n.x, n.y - (n.radius || 20) - 6);
+        ctx.fillText(n.name, n.x, n.y + (n.radius || 20) + 14);
+        if (n.quest && n.quest.enabled) {
+            ctx.fillStyle = '#f1c40f';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.fillText('!', n.x, n.y - (n.radius || 20) - 8);
+        }
         ctx.textAlign = 'left';
     }
 }
@@ -710,27 +765,49 @@ document.getElementById('importBtn').addEventListener('click', () => {
         return;
     }
 
-    // Fill in defaults for anything an older export might be missing
+    itemTypes = parsed.itemTypes || itemTypes;
+    itemTypes.box = itemTypes.box || { name: 'Box', color: '#8B4513', shape: 'square' };
+    itemTypes.cheese = itemTypes.cheese || { name: 'Cheese', color: '#f1c40f', shape: 'triangle' };
+
+    // Fill in defaults for anything an older export might be missing, and
+    // convert an old dict-style `zones: {dock:{...}}` into the new list form.
     for (const key in parsed.scenes) {
         const s = parsed.scenes[key];
-        s.zones = s.zones || {};
         s.doors = s.doors || [];
         s.npcs = s.npcs || [];
         s.background = s.background || '#7494B0';
         s.width = s.width || 800;
         s.height = s.height || 600;
         s.walls = (s.walls || []).map(w => ({ color: '#555555', solid: true, ...w }));
-        if (s.zones.dock) s.zones.dock.spawnItem = s.zones.dock.spawnItem || 'box';
-        if (s.zones.machine) {
-            s.zones.machine.inputItem = s.zones.machine.inputItem || 'box';
-            s.zones.machine.outputItem = s.zones.machine.outputItem || 'cheese';
-        }
-        if (s.zones.counter) s.zones.counter.acceptItem = s.zones.counter.acceptItem || 'cheese';
-    }
 
-    itemTypes = parsed.itemTypes || itemTypes;
-    itemTypes.box = itemTypes.box || { name: 'Box', color: '#8B4513', shape: 'square' };
-    itemTypes.cheese = itemTypes.cheese || { name: 'Cheese', color: '#f1c40f', shape: 'triangle' };
+        if (!s.zones) {
+            s.zones = [];
+        } else if (!Array.isArray(s.zones)) {
+            // Old format: { dock: {...}, machine: {...}, counter: {...} }
+            s.zones = Object.keys(s.zones).map(typeName => ({ type: typeName, ...s.zones[typeName] }));
+        }
+        for (const z of s.zones) {
+            if (z.type === 'dock') {
+                z.spawnItem = z.spawnItem || 'box';
+                z.maxStock = z.maxStock || 5;
+                z.spawnIntervalMs = z.spawnIntervalMs || 4000;
+            }
+            if (z.type === 'machine') {
+                z.inputItem = z.inputItem || 'box';
+                z.outputItem = z.outputItem || 'cheese';
+            }
+            if (z.type === 'counter') z.acceptItem = z.acceptItem || 'cheese';
+        }
+        for (const n of s.npcs) {
+            if (n.quest && n.quest.enabled) {
+                n.quest.amountNeeded = n.quest.amountNeeded || 1;
+                n.quest.amountDelivered = n.quest.amountDelivered || 0;
+                n.quest.requestLines = n.quest.requestLines || [];
+                n.quest.turnInLines = n.quest.turnInLines || [];
+                n.quest.completeLines = n.quest.completeLines || [];
+            }
+        }
+    }
 
     scenes = parsed.scenes;
     startScene = (parsed.startScene && scenes[parsed.startScene]) ? parsed.startScene : Object.keys(scenes)[0];
@@ -742,10 +819,8 @@ document.getElementById('importBtn').addEventListener('click', () => {
     document.getElementById('startX').value = startSpawn.x;
     document.getElementById('startY').value = startSpawn.y;
     drawAll();
-    renderDoorList();
     renderItemTypeList();
-    renderZoneItemSettings();
-    renderNpcList();
+    refreshSidePanels();
     updateOutput();
     alert('Level imported successfully.');
 });
@@ -757,7 +832,5 @@ document.getElementById('startX').value = startSpawn.x;
 document.getElementById('startY').value = startSpawn.y;
 updateOutput();
 drawAll();
-renderDoorList();
 renderItemTypeList();
-renderZoneItemSettings();
-renderNpcList();
+refreshSidePanels();
