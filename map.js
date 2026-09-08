@@ -30,6 +30,11 @@ const mapConfig = {
             "name": "Apple",
             "color": "#ff0000",
             "shape": "circle"
+        },
+        "maze_mold": {
+            "name": "Maze Mold",
+            "color": "#2c5168",
+            "shape": "circle"
         }
     },
     "scenes": {
@@ -240,6 +245,182 @@ const mapConfig = {
                     "y": 663,
                     "width": 366,
                     "height": 48
+                },
+                {
+                    "color": "#816c22",
+                    "solid": true,
+                    "x": 269,
+                    "y": 319,
+                    "width": 46,
+                    "height": 58
+                },
+                {
+                    "color": "#816c22",
+                    "solid": true,
+                    "x": 406,
+                    "y": 322,
+                    "width": 41,
+                    "height": 58
+                },
+                {
+                    "color": "#313a68",
+                    "solid": true,
+                    "x": 706,
+                    "y": 338,
+                    "width": 33,
+                    "height": 43
+                },
+                {
+                    "color": "#313a68",
+                    "solid": true,
+                    "x": 706,
+                    "y": 409,
+                    "width": 32,
+                    "height": 34
+                },
+                {
+                    "color": "#575757",
+                    "solid": true,
+                    "x": 384,
+                    "y": 756,
+                    "width": 35,
+                    "height": 32
+                },
+                {
+                    "color": "#575757",
+                    "solid": true,
+                    "x": 481,
+                    "y": 760,
+                    "width": 38,
+                    "height": 35
+                },
+                {
+                    "color": "#575757",
+                    "solid": true,
+                    "x": 597,
+                    "y": 759,
+                    "width": 38,
+                    "height": 38
+                },
+                {
+                    "color": "#575757",
+                    "solid": true,
+                    "x": 491,
+                    "y": 835,
+                    "width": 37,
+                    "height": 43
+                },
+                {
+                    "color": "#575757",
+                    "solid": true,
+                    "x": 603,
+                    "y": 833,
+                    "width": 32,
+                    "height": 44
+                },
+                {
+                    "color": "#d9c793",
+                    "solid": false,
+                    "x": 577,
+                    "y": 916,
+                    "width": 501,
+                    "height": 63
+                },
+                {
+                    "color": "#d9c793",
+                    "solid": false,
+                    "x": 369,
+                    "y": 905,
+                    "width": 72,
+                    "height": 18
+                },
+                {
+                    "color": "#57d9ea",
+                    "solid": true,
+                    "x": 846,
+                    "y": 716,
+                    "width": 174,
+                    "height": 173
+                },
+                {
+                    "color": "#418790",
+                    "solid": true,
+                    "x": 822,
+                    "y": 675,
+                    "width": 223,
+                    "height": 57
+                },
+                {
+                    "color": "#418790",
+                    "solid": true,
+                    "x": 864,
+                    "y": 756,
+                    "width": 29,
+                    "height": 42
+                },
+                {
+                    "color": "#418790",
+                    "solid": true,
+                    "x": 966,
+                    "y": 760,
+                    "width": 27,
+                    "height": 42
+                },
+                {
+                    "x": 896,
+                    "y": 887,
+                    "width": 63,
+                    "height": 33,
+                    "color": "#d9c793",
+                    "solid": false
+                },
+                {
+                    "x": 330,
+                    "y": 890,
+                    "width": 39,
+                    "height": 30,
+                    "color": "#253d1f",
+                    "solid": true
+                },
+                {
+                    "x": 453,
+                    "y": 890,
+                    "width": 67,
+                    "height": 32,
+                    "color": "#253d1f",
+                    "solid": true
+                },
+                {
+                    "x": 551,
+                    "y": 893,
+                    "width": 78,
+                    "height": 33,
+                    "color": "#253d1f",
+                    "solid": true
+                },
+                {
+                    "x": 641,
+                    "y": 899,
+                    "width": 46,
+                    "height": 26,
+                    "color": "#253d1f",
+                    "solid": true
+                },
+                {
+                    "x": 827,
+                    "y": 880,
+                    "width": 62,
+                    "height": 23,
+                    "color": "#253d1f",
+                    "solid": true
+                },
+                {
+                    "x": 969,
+                    "y": 875,
+                    "width": 58,
+                    "height": 29,
+                    "color": "#253d1f",
+                    "solid": true
                 }
             ],
             "doors": [
@@ -278,6 +459,15 @@ const mapConfig = {
                     "target": "bodega",
                     "spawnX": 60,
                     "spawnY": 523
+                },
+                {
+                    "x": 904,
+                    "y": 825,
+                    "width": 50,
+                    "height": 71,
+                    "target": "house3",
+                    "spawnX": 683,
+                    "spawnY": 502
                 }
             ],
             "npcs": [
@@ -626,84 +816,84 @@ const mapConfig = {
                     "height": 133
                 },
                 {
+                    "color": "#a76539",
+                    "solid": true,
                     "x": 358,
                     "y": 83,
                     "width": 583,
-                    "height": 31,
-                    "color": "#a76539",
-                    "solid": true
+                    "height": 31
                 },
                 {
+                    "color": "#a76539",
+                    "solid": true,
                     "x": 357,
                     "y": 231,
                     "width": 572,
-                    "height": 38,
-                    "color": "#a76539",
-                    "solid": true
+                    "height": 38
                 },
                 {
+                    "color": "#a76539",
+                    "solid": true,
                     "x": 366,
                     "y": 382,
                     "width": 552,
-                    "height": 45,
-                    "color": "#a76539",
-                    "solid": true
+                    "height": 45
                 },
                 {
+                    "color": "#a76539",
+                    "solid": true,
                     "x": 382,
                     "y": 517,
                     "width": 513,
-                    "height": 44,
-                    "color": "#a76539",
-                    "solid": true
+                    "height": 44
                 },
                 {
+                    "color": "#e07f3e",
+                    "solid": true,
                     "x": 381,
                     "y": 498,
                     "width": 514,
-                    "height": 19,
-                    "color": "#e07f3e",
-                    "solid": true
+                    "height": 19
                 },
                 {
+                    "color": "#e07f3e",
+                    "solid": true,
                     "x": 366,
                     "y": 427,
                     "width": 552,
-                    "height": 14,
-                    "color": "#e07f3e",
-                    "solid": true
+                    "height": 14
                 },
                 {
+                    "color": "#e07f3e",
+                    "solid": true,
                     "x": 366,
                     "y": 363,
                     "width": 553,
-                    "height": 20,
-                    "color": "#e07f3e",
-                    "solid": true
+                    "height": 20
                 },
                 {
+                    "color": "#e07f3e",
+                    "solid": true,
                     "x": 358,
                     "y": 270,
                     "width": 571,
-                    "height": 13,
-                    "color": "#e07f3e",
-                    "solid": true
+                    "height": 13
                 },
                 {
+                    "color": "#e07f3e",
+                    "solid": true,
                     "x": 357,
                     "y": 211,
                     "width": 572,
-                    "height": 20,
-                    "color": "#e07f3e",
-                    "solid": true
+                    "height": 20
                 },
                 {
+                    "color": "#e07f3e",
+                    "solid": true,
                     "x": 357,
                     "y": 113,
                     "width": 583,
-                    "height": 17,
-                    "color": "#e07f3e",
-                    "solid": true
+                    "height": 17
                 }
             ],
             "doors": [
@@ -743,6 +933,114 @@ const mapConfig = {
                     "spawnItem": "apple"
                 }
             }
+        },
+        "house3": {
+            "width": 800,
+            "height": 600,
+            "background": "#4187b0",
+            "zones": {
+                "dock": {
+                    "x": 5,
+                    "y": 496,
+                    "width": 85,
+                    "height": 100,
+                    "solid": false,
+                    "spawnItem": "maze_mold"
+                }
+            },
+            "walls": [
+                {
+                    "x": 532,
+                    "y": 442,
+                    "width": 39,
+                    "height": 157,
+                    "color": "#2c5168",
+                    "solid": true
+                },
+                {
+                    "x": 525,
+                    "y": 275,
+                    "width": 274,
+                    "height": 36,
+                    "color": "#2c5168",
+                    "solid": true
+                },
+                {
+                    "x": 392,
+                    "y": 270,
+                    "width": 33,
+                    "height": 231,
+                    "color": "#2c5168",
+                    "solid": true
+                },
+                {
+                    "x": 161,
+                    "y": 386,
+                    "width": 187,
+                    "height": 32,
+                    "color": "#2c5168",
+                    "solid": true
+                },
+                {
+                    "x": 382,
+                    "y": 101,
+                    "width": 293,
+                    "height": 46,
+                    "color": "#2c5168",
+                    "solid": true
+                },
+                {
+                    "x": 279,
+                    "y": 125,
+                    "width": 40,
+                    "height": 193,
+                    "color": "#2c5168",
+                    "solid": true
+                },
+                {
+                    "x": 0,
+                    "y": 204,
+                    "width": 160,
+                    "height": 34,
+                    "color": "#2c5168",
+                    "solid": true
+                },
+                {
+                    "x": 96,
+                    "y": 494,
+                    "width": 31,
+                    "height": 105,
+                    "color": "#2c5168",
+                    "solid": true
+                }
+            ],
+            "doors": [
+                {
+                    "x": 619,
+                    "y": 565,
+                    "width": 137,
+                    "height": 32,
+                    "target": "outside",
+                    "spawnX": 935,
+                    "spawnY": 941
+                }
+            ],
+            "npcs": [
+                {
+                    "x": 64,
+                    "y": 79,
+                    "radius": 20,
+                    "color": "#2c5168",
+                    "name": "Maze Man",
+                    "lines": [
+                        "hEllO.",
+                        "WeLcOme to mY maZ3!",
+                        "I HoPe you w3r3nt loST.",
+                        "i Hop3 Yu sTay her3 for a WhIl3.",
+                        "i n33d ComPanY."
+                    ]
+                }
+            ]
         }
     }
 };
