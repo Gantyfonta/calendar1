@@ -1646,6 +1646,22 @@ const mapConfig = {
                     "height": 23,
                     "color": "#653515",
                     "solid": true
+                },
+                {
+                    "x": 50,
+                    "y": 611.5,
+                    "width": 189,
+                    "height": 99,
+                    "color": "#787878",
+                    "solid": true
+                },
+                {
+                    "x": 70,
+                    "y": 555.5,
+                    "width": 155,
+                    "height": 56,
+                    "color": "#787878",
+                    "solid": true
                 }
             ],
             "doors": [
