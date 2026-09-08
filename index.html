@@ -27,11 +27,20 @@
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             cursor: crosshair;
         }
-        #ui {
+        #menuLink {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            pointer-events: none;
+            top: 14px;
+            left: 14px;
+            font-size: 12px;
+            color: #ecf0f1;
+            background: rgba(0,0,0,0.45);
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            z-index: 5;
+        }
+        #menuLink:hover {
+            background: rgba(0,0,0,0.7);
         }
         #interactPrompt {
             position: absolute;
@@ -73,11 +82,7 @@
 <body>
 
     <div id="game-wrap">
-        <div id="ui">
-            <h2>Box Picker Mini-Game</h2>
-            <p><strong>WASD</strong> to move | <strong>Mouse</strong> to aim | <strong>Space</strong> to pick up / drop | <strong>E</strong> to talk</p>
-            <p>Walk into a glowing <strong>orange door</strong> to head to a different scene.</p>
-        </div>
+        <a id="menuLink" href="title.html">&larr; Menu</a>
 
         <canvas id="gameCanvas" width="800" height="600"></canvas>
 
