@@ -8,8 +8,9 @@ let spaceWasDown = false;
 let eWasDown = false;
 
 // Dialogue state - active while an NPC conversation is open. Movement and
-// item interaction pause while this is true.
-const dialogue = { active: false, npc: null, lineIndex: 0 };
+// item interaction pause while this is true. `lines` is computed fresh each
+// time a conversation opens (it depends on quest progress / held item).
+const dialogue = { active: false, npc: null, lines: [], lineIndex: 0 };
 
 // --- Scene / world state ---------------------------------------------
 // `scene` is always mapConfig.scenes[currentSceneKey]. Switching scenes
@@ -29,6 +30,20 @@ function updateCamera() {
     camera.y = Math.min(maxY, Math.max(0, player.y - canvas.height / 2));
 }
 
+// One "customer" is spawned per counter zone in the current scene.
+let customers = [];
+function rebuildCustomers() {
+    const counters = (scene.zones || []).filter(z => z.type === 'counter');
+    customers = counters.map(counter => ({
+        counter,
+        x: scene.width + 50,
+        y: counter.y + counter.height / 2,
+        radius: 20,
+        speed: 2,
+        state: 'walking_in'
+    }));
+}
+
 // Move the player into a different scene through a door.
 function enterScene(key, spawnX, spawnY) {
     currentSceneKey = key;
@@ -36,6 +51,7 @@ function enterScene(key, spawnX, spawnY) {
     player.x = spawnX;
     player.y = spawnY;
     updateCamera();
+    rebuildCustomers();
 }
 
 // Player setup
@@ -49,50 +65,36 @@ const player = {
     heldItem: null
 };
 updateCamera();
+rebuildCustomers();
 
 // Item sizing
 const itemSize = 24;
 const holdDist = player.radius + (itemSize / 2) + 2;
 
-// The array to hold all items (both boxes and cheese) - these live in the
-// factory's world space; they simply aren't drawn/updated while you're
-// off in another scene.
+// All items (boxes/cheese/custom types) across every scene. Each item is
+// tagged with the scene it belongs to; it's only drawn/interactable there.
+// A held item travels with the player across scenes until dropped.
 const items = [];
 
-// Customer setup - only relevant in scenes that define a counter zone.
-const customer = {
-    x: 0,
-    y: 0,
-    radius: 20,
-    speed: 2,
-    state: 'walking_in'
-};
-
-// Helper to spawn a new item in the (factory) dock zone
-function spawnBox() {
-    const dock = mapConfig.scenes.factory.zones.dock;
-    if (!dock) return;
+// Spawn one item at a given dock zone (in a given scene key)
+function spawnAtDock(sceneKey, dock) {
     items.push({
-        x: dock.x + 20 + Math.random() * (dock.width - 40),
-        y: dock.y + 20 + Math.random() * (dock.height - 40),
+        x: dock.x + 20 + Math.random() * Math.max(1, dock.width - 40),
+        y: dock.y + 20 + Math.random() * Math.max(1, dock.height - 40),
         type: dock.spawnItem || 'box',
-        scene: 'factory' // which scene this item currently sits in
+        scene: sceneKey
     });
 }
 
-// Reset the customer to just off-screen (to the right) of the factory's counter
-function resetCustomer() {
-    const counter = mapConfig.scenes.factory.zones.counter;
-    if (!counter) return;
-    customer.x = mapConfig.scenes.factory.width + 50;
-    customer.y = counter.y + counter.height / 2;
-    customer.state = 'walking_in';
-}
-resetCustomer();
-
-// Spawn 3 initial boxes
-for (let i = 0; i < 3; i++) {
-    spawnBox();
+// Give every dock, in every scene, a small starting stock so the game
+// doesn't begin empty.
+for (const sceneKey in mapConfig.scenes) {
+    const s = mapConfig.scenes[sceneKey];
+    const docks = (s.zones || []).filter(z => z.type === 'dock');
+    for (const dock of docks) {
+        const initial = Math.min(3, dock.maxStock || 5);
+        for (let i = 0; i < initial; i++) spawnAtDock(sceneKey, dock);
+    }
 }
 
 // Event Listeners
@@ -135,9 +137,9 @@ function circleRectOverlap(cx, cy, r, rect) {
 }
 
 // All the solid things in the current scene the player can't walk through
-// (decor objects have solid:false and are visual-only, so they're excluded)
+// (decor objects and dock zones have solid:false and don't block movement)
 function getSolids() {
-    const zoneSolids = Object.values(scene.zones || {}).filter(z => z.solid);
+    const zoneSolids = (scene.zones || []).filter(z => z.solid);
     const solidWalls = (scene.walls || []).filter(w => w.solid !== false);
     return [...solidWalls, ...zoneSolids];
 }
@@ -168,9 +170,28 @@ function getNearbyNpc() {
     return closest;
 }
 
+// Work out what an NPC should say right now, and (if this is a quest turn-in)
+// consume the held item and advance quest progress as a side effect.
+function getNpcLines(npc) {
+    const q = npc.quest;
+    if (q && q.enabled) {
+        if (q.amountDelivered >= q.amountNeeded) {
+            return (q.completeLines && q.completeLines.length) ? q.completeLines : npc.lines;
+        }
+        if (player.heldItem && player.heldItem.type === q.itemNeeded) {
+            player.heldItem = null; // handed over
+            q.amountDelivered++;
+            return (q.turnInLines && q.turnInLines.length) ? q.turnInLines : ['Thank you!'];
+        }
+        return (q.requestLines && q.requestLines.length) ? q.requestLines : npc.lines;
+    }
+    return npc.lines;
+}
+
 function openDialogue(npc) {
     dialogue.active = true;
     dialogue.npc = npc;
+    dialogue.lines = getNpcLines(npc);
     dialogue.lineIndex = 0;
     renderDialogueBox();
     updateInteractPrompt();
@@ -187,7 +208,7 @@ function renderDialogueBox() {
     if (!box || !dialogue.npc) return;
     box.style.display = 'block';
     document.getElementById('dialogueName').textContent = dialogue.npc.name;
-    document.getElementById('dialogueText').textContent = dialogue.npc.lines[dialogue.lineIndex] || '...';
+    document.getElementById('dialogueText').textContent = dialogue.lines[dialogue.lineIndex] || '...';
 }
 
 function hideDialogueBox() {
@@ -213,7 +234,7 @@ function update() {
     if (keys.e && !eWasDown) {
         if (dialogue.active) {
             dialogue.lineIndex++;
-            if (dialogue.lineIndex >= dialogue.npc.lines.length) {
+            if (dialogue.lineIndex >= dialogue.lines.length) {
                 closeDialogue();
             } else {
                 renderDialogueBox();
@@ -230,27 +251,45 @@ function update() {
     }
     updateInteractPrompt();
 
-    const counterZone = scene.zones && scene.zones.counter;
-    const machineZone = scene.zones && scene.zones.machine;
+    const counterZones = (scene.zones || []).filter(z => z.type === 'counter');
+    const machineZones = (scene.zones || []).filter(z => z.type === 'machine');
+    const dockZones = (scene.zones || []).filter(z => z.type === 'dock');
 
-    // 1. Customer Logic (only matters in a scene with a counter)
-    if (counterZone) {
-        if (customer.state === 'walking_in') {
-            customer.x -= customer.speed;
-            const targetX = counterZone.x + counterZone.width / 2 + 40;
-            if (customer.x <= targetX) {
-                customer.x = targetX;
-                customer.state = 'waiting';
+    // 1. Customers walk in/out of their counter
+    for (const cust of customers) {
+        if (cust.state === 'walking_in') {
+            cust.x -= cust.speed;
+            const targetX = cust.counter.x + cust.counter.width / 2 + 40;
+            if (cust.x <= targetX) {
+                cust.x = targetX;
+                cust.state = 'waiting';
             }
-        } else if (customer.state === 'walking_out') {
-            customer.x -= customer.speed;
-            if (customer.x < -50) {
-                resetCustomer();
+        } else if (cust.state === 'walking_out') {
+            cust.x -= cust.speed;
+            if (cust.x < -50) {
+                cust.x = scene.width + 50;
+                cust.state = 'walking_in';
             }
         }
     }
 
-    // 2. 8-Axis Movement
+    // 2. Docks passively restock themselves over time
+    const now = performance.now();
+    for (const dock of dockZones) {
+        if (dock._nextSpawnAt === undefined) dock._nextSpawnAt = now + (dock.spawnIntervalMs || 4000);
+        if (now >= dock._nextSpawnAt) {
+            const stockNearby = items.filter(it =>
+                it.scene === currentSceneKey && it.type === (dock.spawnItem || 'box') &&
+                isInsideZone(it.x, it.y, dock)
+            ).length;
+            if (stockNearby < (dock.maxStock || 5)) {
+                spawnAtDock(currentSceneKey, dock);
+            }
+            dock._nextSpawnAt = now + (dock.spawnIntervalMs || 4000);
+        }
+    }
+
+    // 3. 8-Axis Movement
     let dx = 0; let dy = 0;
     if (keys.w) dy -= 1;
     if (keys.s) dy += 1;
@@ -265,7 +304,7 @@ function update() {
     let nextX = player.x + (dx * player.speed);
     let nextY = player.y + (dy * player.speed);
 
-    // 3. Wall/Object Collision (Simple AABB)
+    // 4. Wall/Object Collision (Simple AABB)
     let collideX = false;
     let collideY = false;
 
@@ -290,16 +329,16 @@ function update() {
 
     updateCamera();
 
-    // 4. Doors - walking into one switches scenes immediately
+    // 5. Doors - walking into one switches scenes immediately
     if (checkDoors()) return; // scene changed, skip the rest of this frame
 
-    // 5. Aiming (convert screen-space mouse to world space using the
+    // 6. Aiming (convert screen-space mouse to world space using the
     // current camera position, so aim stays correct while scrolling)
     const worldMouseX = mouse.screenX + camera.x;
     const worldMouseY = mouse.screenY + camera.y;
     player.angle = Math.atan2(worldMouseY - player.y, worldMouseX - player.x);
 
-    // 6. Pickup / Drop Logic
+    // 7. Pickup / Drop Logic
     if (keys.space && !spaceWasDown) {
         if (player.heldItem !== null) {
             // Drop it - it stays in the scene you're standing in right now
@@ -329,30 +368,34 @@ function update() {
     }
     spaceWasDown = keys.space;
 
-    // 7. Update held item position
+    // 8. Update held item position
     if (player.heldItem !== null) {
         player.heldItem.x = player.x + Math.cos(player.angle) * holdDist;
         player.heldItem.y = player.y + Math.sin(player.angle) * holdDist;
     }
 
-    // 8. World Interaction Logic (Machine & Counter) - only if this scene has them
+    // 9. World Interaction Logic (every Machine & Counter in this scene)
     for (let i = items.length - 1; i >= 0; i--) {
         let item = items[i];
         if (item === player.heldItem) continue; // Only process dropped items
         if (item.scene !== currentSceneKey) continue; // it belongs to a different scene
 
-        // Machine Logic: Turn the machine's input item into its output item
-        if (machineZone && item.type === (machineZone.inputItem || 'box') && isInsideZone(item.x, item.y, machineZone)) {
-            item.type = machineZone.outputItem || 'cheese'; // Ding! It's transformed now.
+        // Machine Logic: turn an item into the machine's output item
+        for (const machine of machineZones) {
+            if (item.type === (machine.inputItem || 'box') && isInsideZone(item.x, item.y, machine)) {
+                item.type = machine.outputItem || 'cheese';
+                break;
+            }
         }
 
-        // Counter Logic: Give the counter's accepted item to the customer
-        if (counterZone && item.type === (counterZone.acceptItem || 'cheese') && isInsideZone(item.x, item.y, counterZone) && customer.state === 'waiting') {
-            items.splice(i, 1); // Remove the item
-            customer.state = 'walking_out'; // Customer leaves happy
-
-            // Order a new item to arrive at the dock
-            setTimeout(spawnBox, 1000);
+        // Counter Logic: give the accepted item to that counter's waiting customer
+        for (const cust of customers) {
+            const counter = cust.counter;
+            if (item.type === (counter.acceptItem || 'cheese') && isInsideZone(item.x, item.y, counter) && cust.state === 'waiting') {
+                items.splice(i, 1); // Remove the item
+                cust.state = 'walking_out'; // Customer leaves happy
+                break;
+            }
         }
     }
 }
@@ -423,17 +466,16 @@ function drawItem(ctx, item, x, y) {
     ctx.restore();
 }
 
-function zoneStyle(name) {
-    if (name === 'counter') return { fill: '#95a5a6', stroke: '#7f8c8d', dashed: false };
-    if (name === 'machine') return { fill: '#34495e', stroke: '#2c3e50', textFill: '#ecf0f1', dashed: false };
-    if (name === 'dock') return { fill: 'rgba(255,255,255,0.1)', stroke: '#bdc3c7', dashed: true };
+function zoneStyle(type) {
+    if (type === 'counter') return { fill: '#95a5a6', stroke: '#7f8c8d', dashed: false };
+    if (type === 'machine') return { fill: '#34495e', stroke: '#2c3e50', textFill: '#ecf0f1', dashed: false };
+    if (type === 'dock') return { fill: 'rgba(255,255,255,0.1)', stroke: '#bdc3c7', dashed: true };
     return { fill: 'rgba(241,196,15,0.15)', stroke: '#f1c40f', dashed: false };
 }
 
 function drawZones() {
-    for (const name in (scene.zones || {})) {
-        const z = scene.zones[name];
-        const style = zoneStyle(name);
+    for (const z of (scene.zones || [])) {
+        const style = zoneStyle(z.type);
         ctx.fillStyle = style.fill;
         if (style.dashed) ctx.setLineDash([10, 5]);
         ctx.fillRect(z.x, z.y, z.width, z.height);
@@ -443,7 +485,7 @@ function drawZones() {
         ctx.setLineDash([]);
         ctx.fillStyle = style.textFill || style.stroke;
         ctx.font = '16px sans-serif';
-        ctx.fillText(name.toUpperCase(), z.x + 10, z.y + 25);
+        ctx.fillText(z.type.toUpperCase(), z.x + 10, z.y + 25);
     }
 }
 
@@ -484,12 +526,11 @@ function draw() {
     drawZones();
     drawDoors();
 
-    const counterZone = scene.zones && scene.zones.counter;
-    if (counterZone) {
-        // Draw Customer
+    // Draw customers
+    for (const cust of customers) {
         ctx.fillStyle = '#e74c3c';
         ctx.beginPath();
-        ctx.arc(customer.x, customer.y, customer.radius, 0, Math.PI * 2);
+        ctx.arc(cust.x, cust.y, cust.radius, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = '#c0392b';
         ctx.lineWidth = 3;
@@ -506,10 +547,17 @@ function draw() {
         ctx.lineWidth = 3;
         ctx.stroke();
 
+        // Name below, quest marker above (so they never overlap)
         ctx.fillStyle = '#fff';
         ctx.font = '13px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(npc.name, npc.x, npc.y - (npc.radius || 20) - 8);
+        ctx.fillText(npc.name, npc.x, npc.y + (npc.radius || 20) + 16);
+
+        if (npc.quest && npc.quest.enabled && npc.quest.amountDelivered < npc.quest.amountNeeded) {
+            ctx.fillStyle = '#f1c40f';
+            ctx.font = 'bold 18px sans-serif';
+            ctx.fillText('!', npc.x, npc.y - (npc.radius || 20) - 10);
+        }
         ctx.textAlign = 'left';
     }
 
