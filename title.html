@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar One - Title Screen</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #ffffff;
+        }
+	#game-container {
+  			width: 800px;
+  			height: 600px;
+  			background-color: #4f92ff; 
+  			background-image: radial-gradient(circle at 50% 160%, #1d8521 70%, transparent 0);
+  			border: 4px solid #34495e;
+  			border-radius: 8px;
+  			position: relative;
+  			display: flex;
+  			flex-direction: column;
+  			justify-content: space-between;
+  			align-items: center;
+  			padding: 60px 20px;
+  			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  			overflow: hidden;
+		}
+
+        /* Decorative Calendar Grid Background Overlay */
+        #game-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: 40px 40px;
+            background-position: center;
+            pointer-events: none;
+        }
+
+        .header {
+            text-align: center;
+            z-index: 1;
+        }
+
+        .title {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            background: linear-gradient(0deg, #3b3b3b, #8b8b8b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #bdc3c7;
+            letter-spacing: 2px;
+        }
+
+        .menu-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 280px;
+            z-index: 1;
+        }
+
+        .menu-btn {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 2px solid #34495e;
+            color: #ecf0f1;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .menu-btn:hover {
+            background-color: #3498db;
+            border-color: #3498db;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .menu-btn:active {
+            transform: translateY(0);
+        }
+
+        .footer {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            z-index: 1;
+            letter-spacing: 1px;
+        }
+
+        /* --- Controls modal --- */
+        #controlsOverlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border-radius: 8px;
+        }
+        #controlsOverlay.open {
+            display: flex;
+        }
+        #controlsPanel {
+            background: #23303d;
+            border: 2px solid #34495e;
+            border-radius: 8px;
+            padding: 26px 30px;
+            width: 380px;
+            max-width: 85%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        #controlsPanel h2 {
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            color: #ecf0f1;
+        }
+        #controlsPanel ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        #controlsPanel li {
+            font-size: 0.95rem;
+            color: #bdc3c7;
+            line-height: 1.4;
+        }
+        #controlsPanel li strong {
+            color: #3498db;
+            display: inline-block;
+            min-width: 70px;
+        }
+        #controlsPanel .note {
+            font-size: 0.85rem;
+            color: #95a5a6;
+            border-top: 1px solid #34495e;
+            padding-top: 12px;
+            margin-bottom: 16px;
+        }
+        #controlsPanel .close-btn {
+            background-color: #3498db;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        #controlsPanel .close-btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div class="header">
+            <h1 class="title">Calendar One</h1>
+            <p class="subtitle">A Mostly Honest Days's Work.</p>
+        </div>
+
+        <div class="menu-options">
+            <button class="menu-btn" onclick="startGame()">START GAME</button>
+            <button class="menu-btn" onclick="showControls()">CONTROLS</button>
+            <button class="menu-btn" onclick="openEditor()">Editor</button>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2026 Gantyfonta. All Rights Are Not Infact Reserved.</p>
+        </div>
+
+        <div id="controlsOverlay">
+            <div id="controlsPanel">
+                <h2>Controls</h2>
+                <ul>
+                    <li><strong>WASD</strong> Move around</li>
+                    <li><strong>Mouse</strong> Aim</li>
+                    <li><strong>Space</strong> Pick up / drop whatever's in reach</li>
+                    <li><strong>E</strong> Talk to a nearby NPC</li>
+                </ul>
+                <p class="note">Walk into a glowing orange door to head to a different scene.</p>
+                <button class="close-btn" onclick="hideControls()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function startGame() {
+            alert('Thank you for playing at least once. It means a lot.');
+            window.location.href = 'index.html';
+            // Add your game initialization logic here
+        }
+
+        function showControls() {
+            document.getElementById('controlsOverlay').classList.add('open');
+        }
+
+        function hideControls() {
+            document.getElementById('controlsOverlay').classList.remove('open');
+        }
+
+        function openEditor() {
+            window.location.href = 'editor.html';
+        }
+    </script>
+
+</body>
+</html>
