@@ -59,6 +59,14 @@
         .npc-item { display: flex; justify-content: space-between; align-items: center; background: #23303d; padding: 6px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; }
         .npc-item:hover { background: #2c3b4c; }
         .npc-item button { background: #c0392b; color: white; border: none; border-radius: 3px; width: 20px; height: 20px; cursor: pointer; line-height: 1; flex-shrink: 0; }
+
+        #npcQuestFields.show { display: flex !important; }
+        input[type=checkbox] { width: auto; accent-color: #9b59b6; }
+
+        .zone-item { display: flex; flex-direction: column; gap: 6px; background: #23303d; padding: 8px; border-radius: 4px; font-size: 12px; }
+        .zone-item .zone-head { display: flex; justify-content: space-between; align-items: center; }
+        .zone-item .zone-head strong { color: #f1c40f; letter-spacing: .04em; }
+        .zone-item .zone-head button { background: #c0392b; color: white; border: none; border-radius: 3px; width: 20px; height: 20px; cursor: pointer; line-height: 1; flex-shrink: 0; }
     </style>
 </head>
 <body>
@@ -139,8 +147,9 @@
         </div>
         <button class="action neutral" id="addItemTypeBtn">＋ Add Item Type</button>
 
-        <h3 style="margin-top:6px;">Zone Item Settings</h3>
-        <div id="zoneItemSettings" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <h3 style="margin-top:6px;">Zones in this scene</h3>
+        <p class="hint">Each Dock/Machine/Counter you draw is added separately, so you can have several.</p>
+        <div id="zoneList" style="display:flex;flex-direction:column;gap:8px;"></div>
 
         <hr>
         <h3>NPCs in this scene</h3>
@@ -160,7 +169,27 @@
                 <label style="width:auto;">Y</label><input type="number" id="npcY">
             </div>
             <p class="hint" style="margin:2px 0 0;">Dialogue lines (one per line, shown in order):</p>
-            <textarea id="npcLines" style="height:80px;"></textarea>
+            <textarea id="npcLines" style="height:60px;"></textarea>
+
+            <div class="row">
+                <input type="checkbox" id="npcQuestEnabled" style="width:auto;">
+                <label style="width:auto;">Has a "bring me an item" quest</label>
+            </div>
+            <div id="npcQuestFields" style="display:none;flex-direction:column;gap:8px;">
+                <div class="row">
+                    <label style="width:auto;">Wants</label>
+                    <select id="npcQuestItem" style="flex:1;"></select>
+                    <label style="width:auto;">x</label>
+                    <input type="number" id="npcQuestAmount" min="1" step="1" style="width:50px;">
+                </div>
+                <p class="hint" style="margin:0;">Said before you've brought the item (one per line):</p>
+                <textarea id="npcQuestRequestLines" style="height:50px;"></textarea>
+                <p class="hint" style="margin:0;">Said the moment you hand it over:</p>
+                <textarea id="npcQuestTurnInLines" style="height:50px;"></textarea>
+                <p class="hint" style="margin:0;">Said afterwards, once the quest is done:</p>
+                <textarea id="npcQuestCompleteLines" style="height:50px;"></textarea>
+            </div>
+
             <button class="action" id="npcSaveBtn">💾 Save NPC</button>
             <button class="action danger" id="npcDeleteBtn">🗑 Delete NPC</button>
             <button class="action neutral" id="npcCancelBtn">Cancel</button>
