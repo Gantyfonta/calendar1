@@ -14,6 +14,7 @@
 // map.js
 // map.js
 // map.js
+// map.js
 const mapConfig = {
     "startScene": "factory",
     "startSpawn": {
@@ -40,6 +41,11 @@ const mapConfig = {
             "name": "Sugar",
             "color": "#ffffff",
             "shape": "triangle"
+        },
+        "apple": {
+            "name": "Apple",
+            "color": "#ff0000",
+            "shape": "circle"
         }
     },
     "scenes": {
@@ -218,6 +224,38 @@ const mapConfig = {
                     "y": 519,
                     "width": 52,
                     "height": 43
+                },
+                {
+                    "color": "#d9c793",
+                    "solid": false,
+                    "x": 206,
+                    "y": 633,
+                    "width": 80,
+                    "height": 348
+                },
+                {
+                    "color": "#d9c793",
+                    "solid": false,
+                    "x": 274,
+                    "y": 918,
+                    "width": 311,
+                    "height": 62
+                },
+                {
+                    "color": "#9e9e9e",
+                    "solid": true,
+                    "x": 345,
+                    "y": 690,
+                    "width": 317,
+                    "height": 215
+                },
+                {
+                    "color": "#575757",
+                    "solid": true,
+                    "x": 325,
+                    "y": 663,
+                    "width": 366,
+                    "height": 48
                 }
             ],
             "doors": [
@@ -307,7 +345,20 @@ const mapConfig = {
                     "spawnY": 193
                 }
             ],
-            "npcs": []
+            "npcs": [
+                {
+                    "x": 54,
+                    "y": 182,
+                    "radius": 20,
+                    "color": "#3bba50",
+                    "name": "Steve",
+                    "lines": [
+                        "Sup.",
+                        "I was just chillin in the back room until you came and bothered me.",
+                        "Scram."
+                    ]
+                }
+            ]
         },
         "house1": {
             "width": 800,
@@ -519,28 +570,28 @@ const mapConfig = {
             },
             "walls": [
                 {
+                    "color": "#7494b0",
+                    "solid": true,
                     "x": 142,
                     "y": 496,
                     "width": 256,
-                    "height": 55,
-                    "color": "#7494b0",
-                    "solid": true
+                    "height": 55
                 },
                 {
+                    "color": "#7494b0",
+                    "solid": true,
                     "x": 121,
                     "y": 277,
                     "width": 154,
-                    "height": 52,
-                    "color": "#7494b0",
-                    "solid": true
+                    "height": 52
                 },
                 {
+                    "color": "#7494b0",
+                    "solid": true,
                     "x": 230,
                     "y": 132,
                     "width": 169,
-                    "height": 67,
-                    "color": "#7494b0",
-                    "solid": true
+                    "height": 67
                 }
             ],
             "doors": [
@@ -567,6 +618,128 @@ const mapConfig = {
                     ]
                 }
             ]
+        },
+        "bodega": {
+            "width": 1000,
+            "height": 600,
+            "background": "#a26767",
+            "walls": [
+                {
+                    "color": "#575757",
+                    "solid": true,
+                    "x": 103,
+                    "y": -0.5,
+                    "width": 34,
+                    "height": 133
+                },
+                {
+                    "x": 358,
+                    "y": 83,
+                    "width": 583,
+                    "height": 31,
+                    "color": "#a76539",
+                    "solid": true
+                },
+                {
+                    "x": 357,
+                    "y": 231,
+                    "width": 572,
+                    "height": 38,
+                    "color": "#a76539",
+                    "solid": true
+                },
+                {
+                    "x": 366,
+                    "y": 382,
+                    "width": 552,
+                    "height": 45,
+                    "color": "#a76539",
+                    "solid": true
+                },
+                {
+                    "x": 382,
+                    "y": 517,
+                    "width": 513,
+                    "height": 44,
+                    "color": "#a76539",
+                    "solid": true
+                },
+                {
+                    "x": 381,
+                    "y": 498,
+                    "width": 514,
+                    "height": 19,
+                    "color": "#e07f3e",
+                    "solid": true
+                },
+                {
+                    "x": 366,
+                    "y": 427,
+                    "width": 552,
+                    "height": 14,
+                    "color": "#e07f3e",
+                    "solid": true
+                },
+                {
+                    "x": 366,
+                    "y": 363,
+                    "width": 553,
+                    "height": 20,
+                    "color": "#e07f3e",
+                    "solid": true
+                },
+                {
+                    "x": 358,
+                    "y": 270,
+                    "width": 571,
+                    "height": 13,
+                    "color": "#e07f3e",
+                    "solid": true
+                },
+                {
+                    "x": 357,
+                    "y": 211,
+                    "width": 572,
+                    "height": 20,
+                    "color": "#e07f3e",
+                    "solid": true
+                },
+                {
+                    "x": 357,
+                    "y": 113,
+                    "width": 583,
+                    "height": 17,
+                    "color": "#e07f3e",
+                    "solid": true
+                }
+            ],
+            "doors": [],
+            "npcs": [
+                {
+                    "x": 49,
+                    "y": 84,
+                    "radius": 20,
+                    "color": "#c9b054",
+                    "name": "Bill",
+                    "lines": [
+                        "Hey there.",
+                        "If only I got another customer.",
+                        "Besides you, my mom is the only other visitor I get.",
+                        "But she doesn't count.",
+                        "Anywho, just take something. I don't get paid enough anyway."
+                    ]
+                }
+            ],
+            "zones": {
+                "dock": {
+                    "x": 358,
+                    "y": 115,
+                    "width": 574,
+                    "height": 113,
+                    "solid": false,
+                    "spawnItem": "apple"
+                }
+            }
         }
     }
 };
