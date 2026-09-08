@@ -42,8 +42,9 @@ const mapConfig = {
             "width": 800,
             "height": 600,
             "background": "#7494B0",
-            "zones": {
-                "counter": {
+            "zones": [
+                {
+                    "type": "counter",
                     "x": 340,
                     "y": 20,
                     "width": 120,
@@ -51,7 +52,8 @@ const mapConfig = {
                     "solid": true,
                     "acceptItem": "cheese"
                 },
-                "machine": {
+                {
+                    "type": "machine",
                     "x": 600,
                     "y": 240,
                     "width": 120,
@@ -60,15 +62,18 @@ const mapConfig = {
                     "inputItem": "box",
                     "outputItem": "cheese"
                 },
-                "dock": {
+                {
+                    "type": "dock",
                     "x": 30,
                     "y": 420,
                     "width": 150,
                     "height": 150,
                     "solid": false,
-                    "spawnItem": "box"
+                    "spawnItem": "box",
+                    "maxStock": 5,
+                    "spawnIntervalMs": 4000
                 }
-            },
+            ],
             "doors": [
                 {
                     "x": 780,
@@ -108,7 +113,7 @@ const mapConfig = {
             "width": 1600,
             "height": 1200,
             "background": "#4a7c3f",
-            "zones": {},
+            "zones": [],
             "walls": [
                 {
                     "color": "#555555",
@@ -367,60 +372,60 @@ const mapConfig = {
                     "height": 42
                 },
                 {
+                    "color": "#d9c793",
+                    "solid": false,
                     "x": 896,
                     "y": 887,
                     "width": 63,
-                    "height": 33,
-                    "color": "#d9c793",
-                    "solid": false
+                    "height": 33
                 },
                 {
+                    "color": "#253d1f",
+                    "solid": true,
                     "x": 330,
                     "y": 890,
                     "width": 39,
-                    "height": 30,
-                    "color": "#253d1f",
-                    "solid": true
+                    "height": 30
                 },
                 {
+                    "color": "#253d1f",
+                    "solid": true,
                     "x": 453,
                     "y": 890,
                     "width": 67,
-                    "height": 32,
-                    "color": "#253d1f",
-                    "solid": true
+                    "height": 32
                 },
                 {
+                    "color": "#253d1f",
+                    "solid": true,
                     "x": 551,
                     "y": 893,
                     "width": 78,
-                    "height": 33,
-                    "color": "#253d1f",
-                    "solid": true
+                    "height": 33
                 },
                 {
+                    "color": "#253d1f",
+                    "solid": true,
                     "x": 641,
                     "y": 899,
                     "width": 46,
-                    "height": 26,
-                    "color": "#253d1f",
-                    "solid": true
+                    "height": 26
                 },
                 {
+                    "color": "#253d1f",
+                    "solid": true,
                     "x": 827,
                     "y": 880,
                     "width": 62,
-                    "height": 23,
-                    "color": "#253d1f",
-                    "solid": true
+                    "height": 23
                 },
                 {
+                    "color": "#253d1f",
+                    "solid": true,
                     "x": 969,
                     "y": 875,
                     "width": 58,
-                    "height": 29,
-                    "color": "#253d1f",
-                    "solid": true
+                    "height": 29
                 }
             ],
             "doors": [
@@ -489,16 +494,19 @@ const mapConfig = {
             "width": 800,
             "height": 600,
             "background": "#7494B0",
-            "zones": {
-                "dock": {
+            "zones": [
+                {
+                    "type": "dock",
                     "x": 8.34716796875,
                     "y": 242,
                     "width": 110,
                     "height": 154,
                     "solid": false,
-                    "spawnItem": "sugar"
+                    "spawnItem": "sugar",
+                    "maxStock": 5,
+                    "spawnIntervalMs": 4000
                 }
-            },
+            ],
             "walls": [
                 {
                     "color": "#555555",
@@ -536,10 +544,25 @@ const mapConfig = {
                     "color": "#3bba50",
                     "name": "Steve",
                     "lines": [
-                        "Sup.",
-                        "I was just chillin in the back room until you came and bothered me.",
-                        "Scram."
-                    ]
+                        "..."
+                    ],
+                    "quest": {
+                        "enabled": true,
+                        "itemNeeded": "sugar_2",
+                        "amountNeeded": 5,
+                        "amountDelivered": 0,
+                        "requestLines": [
+                            "Sup.",
+                            "I was just chillin in the back room until you came and bothered me.",
+                            "While you're here, get me 5 \"sugar.\""
+                        ],
+                        "turnInLines": [
+                            "Thanks, now scram."
+                        ],
+                        "completeLines": [
+                            "Thanks bro, I'll need some more soon."
+                        ]
+                    }
                 }
             ]
         },
@@ -547,7 +570,7 @@ const mapConfig = {
             "width": 800,
             "height": 800,
             "background": "#f7d142",
-            "zones": {},
+            "zones": [],
             "walls": [
                 {
                     "color": "#5194d2",
@@ -740,8 +763,9 @@ const mapConfig = {
             "width": 400,
             "height": 800,
             "background": "#7494B0",
-            "zones": {
-                "machine": {
+            "zones": [
+                {
+                    "type": "machine",
                     "x": 261,
                     "y": 44,
                     "width": 115,
@@ -750,7 +774,7 @@ const mapConfig = {
                     "inputItem": "sugar",
                     "outputItem": "sugar_2"
                 }
-            },
+            ],
             "walls": [
                 {
                     "color": "#7494b0",
@@ -923,95 +947,101 @@ const mapConfig = {
                     ]
                 }
             ],
-            "zones": {
-                "dock": {
+            "zones": [
+                {
+                    "type": "dock",
                     "x": 358,
                     "y": 115,
                     "width": 574,
                     "height": 113,
                     "solid": false,
-                    "spawnItem": "apple"
+                    "spawnItem": "apple",
+                    "maxStock": 5,
+                    "spawnIntervalMs": 4000
                 }
-            }
+            ]
         },
         "house3": {
             "width": 800,
             "height": 600,
             "background": "#4187b0",
-            "zones": {
-                "dock": {
+            "zones": [
+                {
+                    "type": "dock",
                     "x": 5,
                     "y": 496,
                     "width": 85,
                     "height": 100,
                     "solid": false,
-                    "spawnItem": "maze_mold"
+                    "spawnItem": "maze_mold",
+                    "maxStock": 5,
+                    "spawnIntervalMs": 4000
                 }
-            },
+            ],
             "walls": [
                 {
+                    "color": "#2c5168",
+                    "solid": true,
                     "x": 532,
                     "y": 442,
                     "width": 39,
-                    "height": 157,
-                    "color": "#2c5168",
-                    "solid": true
+                    "height": 157
                 },
                 {
+                    "color": "#2c5168",
+                    "solid": true,
                     "x": 525,
                     "y": 275,
                     "width": 274,
-                    "height": 36,
-                    "color": "#2c5168",
-                    "solid": true
+                    "height": 36
                 },
                 {
+                    "color": "#2c5168",
+                    "solid": true,
                     "x": 392,
                     "y": 270,
                     "width": 33,
-                    "height": 231,
-                    "color": "#2c5168",
-                    "solid": true
+                    "height": 231
                 },
                 {
+                    "color": "#2c5168",
+                    "solid": true,
                     "x": 161,
                     "y": 386,
                     "width": 187,
-                    "height": 32,
-                    "color": "#2c5168",
-                    "solid": true
+                    "height": 32
                 },
                 {
+                    "color": "#2c5168",
+                    "solid": true,
                     "x": 382,
                     "y": 101,
                     "width": 293,
-                    "height": 46,
-                    "color": "#2c5168",
-                    "solid": true
+                    "height": 46
                 },
                 {
+                    "color": "#2c5168",
+                    "solid": true,
                     "x": 279,
                     "y": 125,
                     "width": 40,
-                    "height": 193,
-                    "color": "#2c5168",
-                    "solid": true
+                    "height": 193
                 },
                 {
+                    "color": "#2c5168",
+                    "solid": true,
                     "x": 0,
                     "y": 204,
                     "width": 160,
-                    "height": 34,
-                    "color": "#2c5168",
-                    "solid": true
+                    "height": 34
                 },
                 {
+                    "color": "#2c5168",
+                    "solid": true,
                     "x": 96,
                     "y": 494,
                     "width": 31,
-                    "height": 105,
-                    "color": "#2c5168",
-                    "solid": true
+                    "height": 105
                 }
             ],
             "doors": [
@@ -1033,12 +1063,28 @@ const mapConfig = {
                     "color": "#2c5168",
                     "name": "Maze Man",
                     "lines": [
-                        "hEllO.",
-                        "WeLcOme to mY maZ3!",
-                        "I HoPe you w3r3nt loST.",
-                        "i Hop3 Yu sTay her3 for a WhIl3.",
-                        "i n33d ComPanY."
-                    ]
+                        "..."
+                    ],
+                    "quest": {
+                        "enabled": true,
+                        "itemNeeded": "maze_mold",
+                        "amountNeeded": 1,
+                        "amountDelivered": 0,
+                        "requestLines": [
+                            "hEllO.",
+                            "WeLcOme to mY maZ3!",
+                            "I HoPe you w3r3nt loST.",
+                            "i Hop3 Yu sTay her3 for a WhIl3.",
+                            "i n33d ComPanY.",
+                            "I n3ed s0m3 mosS."
+                        ],
+                        "turnInLines": [
+                            "mY preCi0us..."
+                        ],
+                        "completeLines": [
+                            "y0u haV3 b3c0me a frIeND oF th3 MazE."
+                        ]
+                    }
                 }
             ]
         }
