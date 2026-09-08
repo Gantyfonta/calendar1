@@ -1,20 +1,4 @@
 // map.js
-//
-// A "scene" is one self-contained room/area: it has a size, a background
-// color, named work zones (counter/machine/dock), walls, doors that send
-// the player to another scene at a specific spawn point, and dropped
-// items (boxes/cheese) tagged with the scene they belong to.
-//
-// Each entry in "walls" is either a real solid wall (solid: true, blocks
-// the player) or a decor object (solid: false, purely visual detail with
-// no collision) - both support a custom "color".
-//
-// Paste output from editor.html here to update the world.
-// map.js
-// map.js
-// map.js
-// map.js
-// map.js
 const mapConfig = {
     "startScene": "factory",
     "startSpawn": {
@@ -285,6 +269,15 @@ const mapConfig = {
                     "target": "house2",
                     "spawnX": 200,
                     "spawnY": 739
+                },
+                {
+                    "x": 376,
+                    "y": 825,
+                    "width": 63,
+                    "height": 84,
+                    "target": "bodega",
+                    "spawnX": 60,
+                    "spawnY": 523
                 }
             ],
             "npcs": [
@@ -713,7 +706,17 @@ const mapConfig = {
                     "solid": true
                 }
             ],
-            "doors": [],
+            "doors": [
+                {
+                    "x": 13,
+                    "y": 568,
+                    "width": 125,
+                    "height": 28,
+                    "target": "outside",
+                    "spawnX": 397,
+                    "spawnY": 949
+                }
+            ],
             "npcs": [
                 {
                     "x": 49,
