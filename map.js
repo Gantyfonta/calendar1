@@ -639,6 +639,22 @@ const mapConfig = {
                     "y": 884,
                     "width": 76,
                     "height": 29
+                },
+                {
+                    "x": 1149,
+                    "y": 929,
+                    "width": 386,
+                    "height": 51,
+                    "color": "#d9c793",
+                    "solid": false
+                },
+                {
+                    "x": 1325,
+                    "y": 897,
+                    "width": 80,
+                    "height": 44,
+                    "color": "#d9c793",
+                    "solid": false
                 }
             ],
             "doors": [
@@ -2167,108 +2183,108 @@ const mapConfig = {
             "zones": [],
             "walls": [
                 {
+                    "color": "#a58a40",
+                    "solid": true,
                     "x": 0,
                     "y": 454.5,
                     "width": 340,
-                    "height": 144,
-                    "color": "#a58a40",
-                    "solid": true
+                    "height": 144
                 },
                 {
+                    "color": "#a58a40",
+                    "solid": true,
                     "x": 521,
                     "y": 449.5,
                     "width": 278,
-                    "height": 150,
-                    "color": "#a58a40",
-                    "solid": true
+                    "height": 150
                 },
                 {
+                    "color": "#a58a40",
+                    "solid": true,
                     "x": 679,
                     "y": 0.5,
                     "width": 120,
-                    "height": 449,
-                    "color": "#a58a40",
-                    "solid": true
+                    "height": 449
                 },
                 {
+                    "color": "#a58a40",
+                    "solid": true,
                     "x": 1,
                     "y": 1.5,
                     "width": 106,
-                    "height": 454,
-                    "color": "#a58a40",
-                    "solid": true
+                    "height": 454
                 },
                 {
+                    "color": "#a58a40",
+                    "solid": true,
                     "x": 106,
                     "y": -0.5,
                     "width": 573,
-                    "height": 68,
-                    "color": "#a58a40",
-                    "solid": true
+                    "height": 68
                 },
                 {
+                    "color": "#ff0000",
+                    "solid": false,
                     "x": 106,
                     "y": 68.5,
                     "width": 140,
-                    "height": 243,
-                    "color": "#ff0000",
-                    "solid": false
+                    "height": 243
                 },
                 {
+                    "color": "#ff0000",
+                    "solid": false,
                     "x": 523,
                     "y": 67.5,
                     "width": 155,
-                    "height": 252,
-                    "color": "#ff0000",
-                    "solid": false
+                    "height": 252
                 },
                 {
+                    "color": "#ffffff",
+                    "solid": false,
                     "x": 107,
                     "y": 68.5,
                     "width": 139,
-                    "height": 40,
-                    "color": "#ffffff",
-                    "solid": false
+                    "height": 40
                 },
                 {
+                    "color": "#ffffff",
+                    "solid": false,
                     "x": 523,
                     "y": 68.5,
                     "width": 157,
-                    "height": 41,
-                    "color": "#ffffff",
-                    "solid": false
+                    "height": 41
                 },
                 {
+                    "color": "#a56940",
+                    "solid": true,
                     "x": 246,
                     "y": 68.5,
                     "width": 70,
-                    "height": 43,
-                    "color": "#a56940",
-                    "solid": true
+                    "height": 43
                 },
                 {
+                    "color": "#a56940",
+                    "solid": true,
                     "x": 452,
                     "y": 67.5,
                     "width": 71,
-                    "height": 48,
-                    "color": "#a56940",
-                    "solid": true
+                    "height": 48
                 },
                 {
+                    "color": "#a56940",
+                    "solid": true,
                     "x": 554,
                     "y": 320.5,
                     "width": 96,
-                    "height": 30,
-                    "color": "#a56940",
-                    "solid": true
+                    "height": 30
                 },
                 {
+                    "color": "#a56940",
+                    "solid": true,
                     "x": 129,
                     "y": 311.5,
                     "width": 90,
-                    "height": 24,
-                    "color": "#a56940",
-                    "solid": true
+                    "height": 24
                 }
             ],
             "doors": [
